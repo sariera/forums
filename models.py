@@ -1,6 +1,7 @@
 class Member:
 
-    def __init__(self, name, age):
+    def __init__(self, member_id, name, age):
+        self.member_id = member_id
         self.name = name
         self.age = age
         print "Member Class Initialized"
