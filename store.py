@@ -1,42 +1,84 @@
-class MemberStore:
-    members = []
-    print members
+import itertools
+import copy
+
+
+class BaseStore():
+
+    def __init__(self, data_provider, last_id):
+        self._data_provider = data_provider
+        self._last_id = last_id
+
+    def get_all(self):
+        return self._data_provider
 
     def add(self, member):
-        for m in self.members:
-            if m == member.name:
-                print 'Member {} Already Exists'.format(member.name)
-                return
-        self.members.append(member.member_id)
-        self.members.append(member.name)
-        self.members.append(member.age)
+        member.id = self._last_id
+        self._data_provider.append(member)
+        self._last_id += 1
 
-    def get_all(self):
-        return self.members
+    def get_by_id(self, id):
+        result = None
+        all_model_instances = self.get_all()
+        for e in all_model_instances:
+            if e.id == id:
+                result = e
+                break
+        return result
 
-    def get_by_id(self, member_id):
-        self.member_id = self.members.index(member_id)
-        return self.members[self.member_id], self.members[self.member_id + 1], self.members[self.member_id + 2]
+    def entity_exists(self, model_instance):
+        result = False
+        if self.get_by_id(model_instance.id) is not None:
+            result = True
+        return result
 
-    def delete(self, member_id):
-        self.member_id = member_id
-        try:
-            del self.members[self.members.index(self.member_id):self.members.index(self.member_id)+3]
-        except ValueError:
-            print "Member Not Found"
+    def delete(self, id):
+        model_instance = self.get_by_id(id)
+        all_model_instances = self.get_all()
+        all_model_instances.remove(model_instance)
 
-    def entity_exists(self, member):
-        self.member_name = member
-        return self.member_name in self.members
+    def update(self, model_instance):
+        all_model_instances = self.get_all()
+        for i, p in enumerate(all_model_instances):
+            if model_instance.id == p.id:
+                all_model_instances[i] = model_instance
+                break
 
-class PostStore:
+
+class MemberStore(BaseStore):
+    members = []
+    last_id = 1
+
+    def __init__(self):
+        super().__init__(MemberStore.members, MemberStore.last_id)
+
+    def get_by_name(self, name):
+        all_members = self.get_all()
+
+        return (member for member in all_members if member.name == name)
+
+    def get_members_with_posts(self, all_posts):
+        all_members = copy.deepcopy(self.get_all())
+
+        for member, post in itertools.product(all_members, all_posts):
+            if member.id == post.member_id:
+                member.posts.append(post)
+
+        return (member for member in all_members)
+
+    def get_top_two(self, post_store):
+        all_members = self.get_members_with_posts(post_store)
+        all_members = sorted(all_members, key=lambda x: len(x.posts), reverse=True)
+        return all_members[:2]
+
+
+class PostStore(BaseStore):
     posts = []
+    last_id = 1
 
-    def add(self, post):
-        self.posts.append(post.title)
-        self.posts.append(post.content)
+    def __init__(self):
+        super().__init__(PostStore.posts, PostStore.last_id)
 
-    def get_all(self):
-        return self.posts
-        
-        
+    def get_posts_by_date(self):
+        all_posts = self.get_all()
+        all_posts.sort(key=lambda post: post.date, reverse=True)
+        return (post for post in all_posts)
