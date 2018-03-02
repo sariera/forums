@@ -1,14 +1,12 @@
 class Member:
-    last_id = 1
-    def __init__(self, name, age):
-        self.id = self.last_id
+    def __init__(self, name, age, member_id=0):
+        self.member_id = member_id
         self.name = name
         self.age = age
         self.posts = []
-    last_id += 1
 
     def __str__(self):
-        return "Name:%s\nAge:%d" % (self.name, self.age)
+        return "ID:%s\nName:%s\nAge:%d" % (self.member_id, self.name, self.age)
 
 
 class Post:
