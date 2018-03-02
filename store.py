@@ -1,84 +1,84 @@
 import itertools
-import copy
 
 
-class BaseStore():
-
-    def __init__(self, data_provider, last_id):
-        self._data_provider = data_provider
-        self._last_id = last_id
-
-    def get_all(self):
-        return self._data_provider
-
-    def add(self, member):
-        member.id = self._last_id
-        self._data_provider.append(member)
-        self._last_id += 1
-
-    def get_by_id(self, id):
-        result = None
-        all_model_instances = self.get_all()
-        for e in all_model_instances:
-            if e.id == id:
-                result = e
-                break
-        return result
-
-    def entity_exists(self, model_instance):
-        result = False
-        if self.get_by_id(model_instance.id) is not None:
-            result = True
-        return result
-
-    def delete(self, id):
-        model_instance = self.get_by_id(id)
-        all_model_instances = self.get_all()
-        all_model_instances.remove(model_instance)
-
-    def update(self, model_instance):
-        all_model_instances = self.get_all()
-        for i, p in enumerate(all_model_instances):
-            if model_instance.id == p.id:
-                all_model_instances[i] = model_instance
-                break
-
-
-class MemberStore(BaseStore):
+class MemberStore:
     members = []
     last_id = 1
 
     def __init__(self):
-        super().__init__(MemberStore.members, MemberStore.last_id)
+        pass
 
-    def get_by_name(self, name):
+    def get_all(self):
+        return self.members
+
+    def add(self, member):
+        member.id = self.last_id
+        self.members.append(member)
+        self.last_id += 1
+
+    def get_by_id(self, _id):
         all_members = self.get_all()
+        result = None
+        for member in all_members:
+            if member.id == _id:
+                result = member
+                break
 
-        return (member for member in all_members if member.name == name)
+        return result
+
+    def entity_exists(self, member):
+        # check if member exists or not
+        return member in self.get_all()
+
+    def delete(self, _id):
+        scan = self.get_by_id(_id)
+        self.members.remove(scan)
+
+    def get_by_name(self, member_name):
+        all_members = self.get_all()
+        # algorithm for searching by name
+        return (member for member in all_members if member.name == member_name)
+
+    def update(self, member):
+        all_member = self.get_all()
+        member_id = member.id
+        for index, e in enumerate(all_member):
+            if e.id == member_id:
+                all_member[index] = member
 
     def get_members_with_posts(self, all_posts):
-        all_members = copy.deepcopy(self.get_all())
-
+        all_members = self.get_all()
         for member, post in itertools.product(all_members, all_posts):
-            if member.id == post.member_id:
+            if post.member_id == member.id:
                 member.posts.append(post)
+        return all_members
 
-        return (member for member in all_members)
-
-    def get_top_two(self, post_store):
-        all_members = self.get_members_with_posts(post_store)
-        all_members = sorted(all_members, key=lambda x: len(x.posts), reverse=True)
-        return all_members[:2]
+    def get_top_two(self, all_posts):
+        self.get_members_with_posts(all_posts)
+        store = sorted(self.get_all(), key=lambda top: len(top.posts), reverse=True)
+        return store[:2]
 
 
-class PostStore(BaseStore):
+class PostStore:
     posts = []
     last_id = 1
 
     def __init__(self):
-        super().__init__(PostStore.posts, PostStore.last_id)
+        pass
 
-    def get_posts_by_date(self):
+    def get_all(self):
+        return self.posts
+
+    def add(self, post):
+        post.id = self.last_id
+        self.posts.append(post)
+        post.id += 1
+
+    def get_by_id(self, _id):
         all_posts = self.get_all()
-        all_posts.sort(key=lambda post: post.date, reverse=True)
-        return (post for post in all_posts)
+        result = None
+        for post in all_posts:
+            if post.id == _id:
+                result = post
+                break
+        return result

@@ -1,7 +1,6 @@
 import models
 import stores
 
-
 def create_members():
     member1 = models.Member("Mohammed", 20)
     member2 = models.Member("Mohammed", 22)
@@ -78,8 +77,8 @@ def create_posts(members_instances):
 
     post1 = models.Post("Agriculture", "Agriculture is amazing", members_instances[0].id)
     post2 = models.Post("Engineering", "I love engineering", members_instances[0].id)
+
     post3 = models.Post("Medicine", "Medicine is great", members_instances[1].id)
-    
     post4 = models.Post("Architecture", "Spectacular art", members_instances[1].id)
     post5 = models.Post("Astronomy", "Space is awesome", members_instances[1].id)
 
@@ -120,15 +119,6 @@ def store_should_get_top_two(member_store, post_store):
         for post in member_with_posts.posts:
             print(f"\t{post}")
 
-
-def store_should_get_posts_by_date(post_store):
-    print("=" * 10)
-    posts_sorted_by_date = post_store.get_posts_by_date()
-    for post in posts_sorted_by_date:
-        print(post)
-    print("=" * 10)
-
-
 members_instances = create_members()
 member1, member2, member3 = members_instances
 
@@ -162,5 +152,3 @@ store_should_add_posts(posts_instances, post_store)
 store_should_get_members_with_posts(member_store, post_store)
 
 store_should_get_top_two(member_store, post_store)
-
-store_should_get_posts_by_date(post_store)
