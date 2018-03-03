@@ -11,7 +11,7 @@ class Member:
 
 class Post:
     def __init__(self, title, content, member_id=0):
-        self.id = 0
+        self.post_id = 0
         self.title = title
         self.content = content
         self.member_id = member_id

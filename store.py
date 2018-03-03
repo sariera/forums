@@ -17,21 +17,48 @@ class MemberStore:
         return MemberStore.members
 
     def get_by_id(self,member_id):
-        self.member_id = member_id
-        return MemberStore.members[self.member_id - 1]
+        result = None
+        all_members = self.get_all()
+        for member in all_members:
+            if member.member_id == member_id:
+                result = member
+                break
+        return result
 
     def entity_exists(self, member):
-        self.member = member
-        for i in MemberStore.members:
-            if i.name == self.member:
-                return "The member {} is exists".format(self.member)
-            else:
-                return "The member {} is not exist".format(self.member)
+        result = True
+        if self.get_by_id(member.member_id) is None:
+            result = False
+        return result
 
     def delete(self, member_id):
-        self.member_id = member_id
-        del MemberStore.members[self.member_id - 1]
-        return "The member {} has been deleted".format(self.member)
+        member = self.get_by_id(member_id)
+        MemberStore.members.remove(member)
+
+    def update(self,member):
+        result = member
+        all_members = self.get_all()
+        for index, current_member in enumerate(all_members):
+            if current_member.member_id == member.member_id:
+                all_members[index] = member
+                break
+        return result
+
+    def get_by_name(self, member_name):
+        result = None
+        all_members = self.get_all()
+        for member in all_members:
+            if member.name == member_name:
+                yield member
+
+    def get_members_with_posts(self, all_posts):
+        all_members = self.get_all()
+        for post in all_posts:
+            for member in all_members:
+                if post.member_id == member.member_id:
+                    member.posts.append(post)
+        yield member
+
 
     
 class PostStore:
@@ -44,3 +71,12 @@ class PostStore:
 
     def get_all(self):
         return MemberStore.posts
+
+    def get_by_id(self,member_id):
+        result =[]
+        all_posts = self.get_all()
+        for e in all_posts:
+            if e.member_id == member_id:
+                result.append(e)
+        return result
+
